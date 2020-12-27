@@ -5,6 +5,8 @@ import requests
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
+
 # Create your views here.
 def create_new_user(request):
     first_name = "test",
@@ -54,4 +56,7 @@ def login_user(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def test_api(request):
+    print(str(request.headers["Authorization"])[6:])
+    user = Token.objects.get(key=str(request.headers["Authorization"])[6:]).user
+    print(user)
     return HttpResponse("Test Successful")
