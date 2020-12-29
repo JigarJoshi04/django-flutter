@@ -6,52 +6,63 @@ from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
-
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.hashers import make_password
+from django.http import JsonResponse
+import json
 # Create your views here.
+@csrf_exempt
 def create_new_user(request):
-    first_name = "test",
-    last_name = "002",
-    email= "test002@gmail.com",
-    phone_number = "893acxa964"
-    security_access_level= int(3),
-    password ="test002"
+    
+    if request.method == 'POST':
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        first_name = body["first_name"]
+        last_name = body["last_name"]
+        email= body["email"]
+        phone_number = body["phone_number"]
+        security_access_level= int(body["security_access_level"])
+        str_password = body["password"]
+        password = make_password(str_password)
+        user = UserModel(first_name=first_name,last_name=last_name,phone_number = phone_number,security_access_level =security_access_level,email=email,password=password)
+        user.save()
 
-    user = UserModel(first_name=first_name,last_name=last_name,phone_number = phone_number,security_access_level =security_access_level,email=email,password=password)
-    user.first_name = user.first_name[0]
-    user.last_name = user.last_name[0]
-    user.security_access_level = user.security_access_level[0]
-    user.email = user.email[0]
-    user.save()
-    print(user.first_name)
-    print(user.last_name)
-    print(user.phone_number)
-    print(user.email)
-    print(user.password)
-    print(user.security_access_level)
-    print("User is saved")
-    return HttpResponse("User is saved 200 code")
-
-def login_user(request):
-    phone_number = "9579088663"
-    password = "jigar"
-
-    users = UserModel.objects.get(phone_number =phone_number)
-    print(users.password)
-    print(password)
-    if users.check_password(password):
-        print("Login Success")
+        users = UserModel.objects.get(phone_number =phone_number)
         url = 'http://localhost:8000/api/token/'
-        data = {"phone_number":phone_number,"password":password}
-        print(data)
+        data = {"username":phone_number,"password":str_password}
         response = requests.post(url, data = data)
         response_json = convert_bytes_array_to_json(response.content)
-        # print(response_json["access"])
-        # authenticated_user =authenticate(phone_number=phone_number,password=password)
-        # print(response.status_code)
-        # print(response.content)
+        response_data = {"token" : response_json["token"]}
+        return  JsonResponse(response_json)
+    
     else:
-        print("Account not found")
-    return HttpResponse("User is found 200 code")
+        return HttpResponse("Get request not allowd. Please do post request")
+
+@csrf_exempt
+def login_user(request):
+    if request.method == 'POST':
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+        phone_number = body["phone_number"]
+        password = body["password"]
+
+        users = UserModel.objects.get(phone_number =phone_number)
+    
+        if users.check_password(password):
+        
+            url = 'http://localhost:8000/api/token/'
+            data = {"username":phone_number,"password":password}
+            response = requests.post(url, data = data)
+            response_json = convert_bytes_array_to_json(response.content)
+            response_data = {"token" : response_json["token"]}
+            
+            return  JsonResponse(response_json)
+
+        else:
+            return HttpResponse("Incorrect Credentials. Do check credentials and try again")
+            
+    else:
+        return HttpResponse("Get request not allowd. Please do post request")
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
