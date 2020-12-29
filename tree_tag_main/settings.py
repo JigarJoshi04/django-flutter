@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'mongo_auth',
     'user_app',
+    'tree_app'
 ]
 
 MIDDLEWARE = [
