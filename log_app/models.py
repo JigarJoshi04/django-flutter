@@ -1,8 +1,10 @@
 from django.db import models
 from user_app.models import UserModel
 from tree_app.models import TreeModel
+from uuid import uuid4
 
 class LogTreeModel(models.Model):
+    log_id=models.CharField(max_length=100, blank=True, unique=True, default=uuid4)
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank= False)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank= False)
     pin_code = models.IntegerField(blank= False)
@@ -17,4 +19,4 @@ class LogTreeModel(models.Model):
         
     # [self.first_name,self.last_name,self.is_active,self.is_staff,self.is_superuser,self.email,self.security_access_level,self.password]
     def __str__(self):
-        return self.pin_code
+        return str(self.log_id)

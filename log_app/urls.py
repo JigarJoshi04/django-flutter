@@ -6,4 +6,5 @@ from . import views
 urlpatterns = [
     # Your URLs...
     path('log_tree', views.create_new_log, name='create user'),
+    path('get_tree_location',views.get_trees_location , name= 'get tree location')
 ]
