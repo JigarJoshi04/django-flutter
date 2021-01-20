@@ -1,7 +1,7 @@
 from django.shortcuts import render,HttpResponse
 from log_app.models import LogTreeModel
 from user_app.models import UserModel
-
+from tree_app.models import TreeModel
 import requests
 from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view, permission_classes
@@ -19,17 +19,19 @@ import json
 def create_new_log(request):
     body_unicode = request.body.decode('utf-8')
     body = json.loads(body_unicode)
+    tree_name = body["tree_name"]
     latitude = body["latitude"]
     longitude = body["longitude"]
     pin_code = body["pin_code"]
     tree_girth = body["tree_girth"]
     time_of_logging = body["time_of_logging"]
 
+
     user_phone_number = Token.objects.get(key=str(request.headers["Authorization"])[6:]).user
     logged_by_user = UserModel.objects.get(phone_number= user_phone_number)  
-    logged_tree = TreeModel.objects.get(tree_name = body["tree_name"])
-    # tree= TreeModel(tree_name =tree_name, tree_scientific_name= tree_scientific_name, tree_preciousness = tree_preciousness,added_by_user = added_by_user)
-    # tree.save()
+    logged_tree = TreeModel.objects.filter(tree_name = body["tree_name"]).first()
+    loggedtree= LogTreeModel(latitude=latitude,longitude=longitude,pin_code=pin_code,tree_girth=tree_girth,time_of_logging=time_of_logging,logged_by_user=logged_by_user,logged_tree=logged_tree)
+    loggedtree.save()
 
     return HttpResponse("Tree addition successful")
 

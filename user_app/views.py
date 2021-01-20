@@ -27,16 +27,18 @@ def create_new_user(request):
         user = UserModel(first_name=first_name,last_name=last_name,phone_number = phone_number,security_access_level =security_access_level,email=email,password=password)
         user.save()
 
-        users = UserModel.objects.get(phone_number =phone_number)
-        url = 'http://localhost:8000/api/token/'
-        data = {"username":phone_number,"password":str_password}
-        response = requests.post(url, data = data)
-        response_json = convert_bytes_array_to_json(response.content)
-        response_data = {"token" : response_json["token"]}
-        return  JsonResponse(response_json)
+        # users = UserModel.objects.get(phone_number =phone_number)
+        # url = 'http://localhost:8000/api/token/'
+        # data = {"username":phone_number,"password":str_password}
+        # response = requests.post(url, data = data)
+        # response_json = convert_bytes_array_to_json(response.content)
+        # response_data = {"token" : response_json["token"]}
+        response_data = {"status":"User Created"}
+        return  JsonResponse(response_data)
     
     else:
-        return HttpResponse("Get request not allowd. Please do post request")
+        response_data = {"status":"Get request not allowed."}
+        return  JsonResponse(response_data)
 
 @csrf_exempt
 def login_user(request):
