@@ -50,29 +50,24 @@ def get_trees_location(request):
     user_phone_number = Token.objects.get(key=str(request.headers["Authorization"])[6:]).user
     user = UserModel.objects.get(phone_number = user_phone_number)
 
-    # if(user.security_access_level == 5):
-    #     all_trees = get_all_trees()
-    #     return all_trees
-        #return all trees
+    if(user.security_access_level == 5):
+        all_trees = get_all_trees()
     
-    # elif(user.security_access_level == 3):
-    #     all_trees = get_all_trees()
-    #     return all_trees
-    #     # return al trees for now
+    elif(user.security_access_level == 3):
+        all_trees = get_all_trees()
+        # return al trees for now
     
-    # else:
-    #     trees_of_that_user = get_trees_of_user(user)
-    #     return trees_of_that_user
-        #return trees of that worker only
+    else:
+        all_trees = get_trees_of_user(user)
     
     # all_trees = get_all_trees()
-    all_trees = get_trees_of_user(user)
+    trees_list = []
     for i in range(0,len(all_trees)):
         print("Yhis is me")
         print(all_trees[i])
         log = LogTreeModel.objects.get(log_id = all_trees[i])
-        print(log.latitude, log.longitude)
+        trees_list.append([log.latitude, log.longitude])
     print(all_trees)
     
-    # return all_trees
-    return HttpResponse("Test Successful")
+    return JsonResponse({"trees_list":trees_list})
+    # return HttpResponse("Test Successful")

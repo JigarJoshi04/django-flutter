@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'mongo_auth',
     'user_app',
     'tree_app',
-    'log_app'
+    'log_app',
+    'report_app'
 ]
 
 MIDDLEWARE = [
