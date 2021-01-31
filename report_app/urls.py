@@ -6,5 +6,5 @@ from . import views
 urlpatterns = [
     # Your URLs...
     path('user_based_report/', views.user_based_report, name='user_basedreport'),
-   
+    path('zone_based_report/', views.zone_based_report, name='user_basedreport'),
 ]
