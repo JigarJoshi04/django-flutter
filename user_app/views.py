@@ -1,4 +1,4 @@
-from django.shortcuts import render,HttpResponse
+from django.shortcuts import render, HttpResponse
 from user_app.models import UserModel
 from .serializers import convert_bytes_array_to_json
 import requests
@@ -10,21 +10,31 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 import json
+
 # Create your views here.
+
+
 @csrf_exempt
 def create_new_user(request):
-    
-    if request.method == 'POST':
-        body_unicode = request.body.decode('utf-8')
+
+    if request.method == "POST":
+        body_unicode = request.body.decode("utf-8")
         body = json.loads(body_unicode)
         first_name = body["first_name"]
         last_name = body["last_name"]
-        email= body["email"]
+        email = body["email"]
         phone_number = body["phone_number"]
-        security_access_level= int(body["security_access_level"])
+        security_access_level = int(body["security_access_level"])
         str_password = body["password"]
         password = make_password(str_password)
-        user = UserModel(first_name=first_name,last_name=last_name,phone_number = phone_number,security_access_level =security_access_level,email=email,password=password)
+        user = UserModel(
+            first_name=first_name,
+            last_name=last_name,
+            phone_number=phone_number,
+            security_access_level=security_access_level,
+            email=email,
+            password=password,
+        )
         user.save()
 
         # users = UserModel.objects.get(phone_number =phone_number)
@@ -33,40 +43,44 @@ def create_new_user(request):
         # response = requests.post(url, data = data)
         # response_json = convert_bytes_array_to_json(response.content)
         # response_data = {"token" : response_json["token"]}
-        response_data = {"status":"User Created"}
-        return  JsonResponse(response_data)
-    
+        response_data = {"status": "User Created"}
+        return JsonResponse(response_data)
+
     else:
-        response_data = {"status":"Get request not allowed."}
-        return  JsonResponse(response_data)
+        response_data = {"status": "Get request not allowed."}
+        return JsonResponse(response_data)
+
 
 @csrf_exempt
 def login_user(request):
-    if request.method == 'POST':
-        body_unicode = request.body.decode('utf-8')
+    if request.method == "POST":
+        print(request.body)
+        body_unicode = request.body.decode("utf-8")
+        print(request.body)
         body = json.loads(body_unicode)
         phone_number = body["phone_number"]
         password = body["password"]
 
-        users = UserModel.objects.get(phone_number =phone_number)
-    
+        users = UserModel.objects.get(phone_number=phone_number)
+
         if users.check_password(password):
-        
-            url = 'http://localhost:8000/api/token/'
-            data = {"username":phone_number,"password":password}
-            response = requests.post(url, data = data)
+
+            url = "http://localhost:8000/api/token/"
+            data = {"username": phone_number, "password": password}
+            response = requests.post(url, data=data)
             response_json = convert_bytes_array_to_json(response.content)
-            response_data = {"token" : response_json["token"]}
-            
-            return  JsonResponse(response_json)
+            response_data = {"token": response_json["token"]}
+
+            return JsonResponse(response_json)
 
         else:
             return HttpResponse("Incorrect Credentials. Do check credentials and try again")
-            
+
     else:
         return HttpResponse("Get request not allowd. Please do post request")
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def test_api(request):
     print(str(request.headers["Authorization"])[6:])
